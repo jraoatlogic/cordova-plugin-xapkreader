@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android" id="com.flyingsoftgames.xapkreader" version="0.9.1">
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android" id="com.flyingsoftgames.xapkreader" version="1.0.0">
  <name>Cordova Expansion File Reader</name>
  <description>Easily access Google Play APK expansion file data.</description>
  <author>Michael Romanovsky</author>
  <license>MIT (see readme.md)</license>
  <keywords>cordova,apk,expansion,file,xapk,expansion file reader,xapk reader,xapkreader,android,agamemnus,flyingsoftgames</keywords>
- <engines><engine name="cordova" version=">=4.1.1" /></engines>
+ <repo>https://github.com/erobertson42/cordova-plugin-xapkreader</repo>
+
+ <engines>
+  <engine name="cordova" version=">=4.1.1" />
+  <engine name="cordova-android" version=">=7.0.0" />
+ </engines>
  
  <platform name="android">
- 
+  <hook type="before_plugin_install" src="scripts/before_install.js" comment="Update Cordova Plugin Gradle Template for Gradle 3.0+" />
+
   <framework src="com.google.android.gms:play-services-base:+" />
  
   <js-module src="www/XAPKReader.js" name="XAPKReader">
@@ -16,6 +22,8 @@
   </js-module>
   
   <config-file target="res/xml/config.xml" parent="/*">
+   <access origin="content:///*" />
+   <access origin="cdvfile:///*" />
    <feature name="XAPKReader">
     <param name="android-package" value="com.flyingsoftgames.xapkreader.XAPKReader"/>
     <param name="onload" value="true" />
@@ -39,7 +47,7 @@
   <preference name="XAPK_PROGRESS_FORMAT" default="percent" />
 
   <source-file src="res/values/xapkreader.xml" target-dir="res/values" />
-  <config-file target="res/values/xapkreader.xml" parent="/*">
+  <config-file target="app/src/main/res/values/xapkreader.xml" parent="/*">
    <string name="xapk_expansion_authority">$XAPK_EXPANSION_AUTHORITY</string>
    <string name="xapk_google_play_public_key">$XAPK_PUBLIC_KEY</string>
    <string name="xapk_text_downloading_assets">$XAPK_TEXT_DL_ASSETS</string>
@@ -84,8 +92,8 @@
   </config-file>
   
   <config-file target="AndroidManifest.xml" parent="application">
-   <activity android:name="com.flyingsoftgames.xapkreader.XAPKDownloaderActivity" android:label="@string/app_name" android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale">
-   </activity>
+   <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+   <activity android:name="com.flyingsoftgames.xapkreader.XAPKDownloaderActivity" android:label="@string/app_name" android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale"></activity>
    <service android:name="com.flyingsoftgames.xapkreader.XAPKDownloaderService" />
    <receiver android:name="com.flyingsoftgames.xapkreader.XAPKAlarmReceiver" />
    <provider android:authorities="@string/xapk_expansion_authority" android:exported="false" android:multiprocess="true" android:name="com.flyingsoftgames.xapkreader.XAPKProvider" />
