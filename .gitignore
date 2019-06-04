@@ -1,4 +1,3 @@
-
 .gitignore
 .idea/
 android-sdk/extras/google/play_apk_expansion/downloader_library/downloader_library.iml
@@ -7,3 +6,4 @@ android-sdk/extras/google/play_licensing/library/gen/com/google/android/vending/
 android-sdk/extras/google/play_licensing/library/gen/com/google/android/vending/licensing/R.java
 android-sdk/extras/google/play_licensing/library/library.iml
 src/cordova-plugin-xapkreader.iml
+node_modules/
