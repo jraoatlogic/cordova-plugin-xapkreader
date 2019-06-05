@@ -71,9 +71,9 @@ Alternatively, simply donate to the open source community. And here I would like
 3. You'll need a Google Play developer account, and you'll need to create a Services & APIs public key; see: https://developer.android.com/google/play/licensing/setting-up.html.
 4. **Cordova Media plugin** fans: APK expansion files (e.g.: audio files), as of 10/10/2014, cannot be run in conjunction with this plugin. Please see [media_plugin_workaround.txt](media_plugin_workaround.txt) for more details.
 5. Importantly, for Cordova 5 and above, there is a whitelist plugin by default. As of 9/22/2015, it will interfere with correct functioning of expansion files and some other types of files. (`cdvfile://` and `content://`) Currently, there are three ways of dealing with the issue (NOTE: With this fork, #3 is now done automatically, though the info has been left here in case it could be helpful):
-  1. Download and install my own whitelist with a tentative patch: https://github.com/agamemnus/cordova-plugin-whitelist.
-  2. Add a meta tag to your index.html file (and perhaps other html files?): `<meta http-equiv="Content-Security-Policy" content="* * 'self' default-src 'unsafe-inline' 'unsafe-eval' http://* https://* data: cdvfile://* content://*;">`.
-  3. Add the following to `[root]/config.xml`:
+    1. Download and install my own whitelist with a tentative patch: https://github.com/agamemnus/cordova-plugin-whitelist.
+    2. Add a meta tag to your index.html file (and perhaps other html files?): `<meta http-equiv="Content-Security-Policy" content="* * 'self' default-src 'unsafe-inline' 'unsafe-eval' http://* https://* data: cdvfile://* content://*;">`.
+    3. Add the following to `[root]/config.xml`:
 
 ```xml
     <allow-navigation href="*://*/*"/>
