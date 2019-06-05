@@ -4,6 +4,7 @@ cordova-plugin-xapkreader (Agamemnus/Flyingsoft Games edition)
 Table of Contents
 ------------------
 - [Version](#version)
+- [Changes](#changes)
 - [Purpose](#purpose)
 - [Donations?](#donations)
 - [Requirements](#requirements)
@@ -20,7 +21,20 @@ Table of Contents
 - [License](#license)
 
 # Version
-The information in this readme is current as of March 7, 2017. This version should theoretically work for at least Cordova 5.3.1 through 6.5.0.
+The information in this readme is current as of June 5, 2019. This version should theoretically work for at least Cordova 6.5.0.
+
+Testing on the changes in this fork were done using Cordova 9.0.0 and Cordova Android 7.1.4 / 8.0.0.
+
+
+# Changes
+This fork contains several changes that fix issues using newer versions of Cordova software, and automates some configuration:
+
+* Now requires `cordova-android` >=7.0.0 in the `plugin.xml` file.  It may work with older versions, but this is what I tested with.
+* `build-extras.gradle` config file updated to be Gradle 3+ compliant
+* Added a `before_plugin_install` hook to fix several other issues with Cordova's default `plugin-build.gradle` file
+* Auto-install some npm package dependencies required for the `before_plugin_install` hook script
+* The `content:///*` and `cdvfile:///*` access permissions are automatically added to the `config.xml` file
+* The `plugin.xml` config adds a library definition for `org.apache.http.legacy` to the `AndroidManifest.xml` file.  This is now required when targeting API 28+ ([more info](https://developer.android.com/about/versions/pie/android-9.0-changes-28#apache-p)).
 
 
 # Purpose
@@ -56,9 +70,9 @@ Alternatively, simply donate to the open source community. And here I would like
 2. First, review Google's APK Expansion File development checklist: https://developer.android.com/google/play/expansion-files.html#Checklist.
 3. You'll need a Google Play developer account, and you'll need to create a Services & APIs public key; see: https://developer.android.com/google/play/licensing/setting-up.html.
 4. **Cordova Media plugin** fans: APK expansion files (e.g.: audio files), as of 10/10/2014, cannot be run in conjunction with this plugin. Please see [media_plugin_workaround.txt](media_plugin_workaround.txt) for more details.
-5. Importantly, for Cordova 5 and above, there is a whitelist plugin by default. As of 9/22/2015, it will interfere with correct functioning of expansion files and some other types of files. (``cdvfile://`` and ``content://``) Currently, there are three ways of dealing with the issue:
+5. Importantly, for Cordova 5 and above, there is a whitelist plugin by default. As of 9/22/2015, it will interfere with correct functioning of expansion files and some other types of files. (`cdvfile://` and `content://`) Currently, there are three ways of dealing with the issue (NOTE: With this fork, #3 is now done automatically, though the info has been left here in case it could be helpful):
   1. Download and install my own whitelist with a tentative patch: https://github.com/agamemnus/cordova-plugin-whitelist.
-  2. Add a meta tag to your index.html file (and perhaps other html files?): ``<meta http-equiv="Content-Security-Policy" content="* * 'self' default-src 'unsafe-inline' 'unsafe-eval' http://* https://* data: cdvfile://* content://*;">``.
+  2. Add a meta tag to your index.html file (and perhaps other html files?): `<meta http-equiv="Content-Security-Policy" content="* * 'self' default-src 'unsafe-inline' 'unsafe-eval' http://* https://* data: cdvfile://* content://*;">`.
   3. Add the following to `[root]/config.xml`:
 
 ```xml
@@ -77,26 +91,26 @@ Alternatively, simply donate to the open source community. And here I would like
 You'll need to specify the plugin's Github branch to install it:
 
 ```
-cordova plugin add https://github.com/agamemnus/cordova-plugin-xapkreader.git#cordova-6.5.0 --save
+cordova plugin add https://github.com/erobertson42/cordova-plugin-xapkreader.git#cordova-9
 ```
 
 You'll also need to specify, at minimum, the `XAPK_PUBLIC_KEY` variable. You can either add it in your app's `config.xml` file, or specify it as part of the `cordova plugin add` command, using the `--variable` flag:
 
 ```
-cordova plugin add https://github.com/agamemnus/cordova-plugin-xapkreader.git#cordova-6.5.0 --variable XAPK_PUBLIC_KEY="YOUR_GOOGLE_PLAY_LICENSE_KEY"
+cordova plugin add https://github.com/erobertson42/cordova-plugin-xapkreader.git#cordova-9 --variable XAPK_PUBLIC_KEY="YOUR_GOOGLE_PLAY_LICENSE_KEY"
 ```
 
 ... or (in `config.xml`) ...
 
 ```xml
-    <plugin name="com.flyingsoftgames.xapkreader" spec="https://github.com/agamemnus/cordova-plugin-xapkreader.git#cordova-6.5.0">
+    <plugin name="com.flyingsoftgames.xapkreader" spec="https://github.com/erobertson42/cordova-plugin-xapkreader.git#cordova-9">
         <variable name="XAPK_PUBLIC_KEY" value="Your Google Play public API key" />
     </plugin>
 ```
 
 To specify the two or more variables at once (for example, `XAPK_PUBLIC_KEY` and `XAPK_EXPANSION_AUTHORITY`), the command looks like this:
 ```
-cordova plugin add https://github.com/agamemnus/cordova-plugin-xapkreader.git#cordova-6.5.0 --variable XAPK_PUBLIC_KEY="YOUR_GOOGLE_PLAY_LICENSE_KEY" --variable XAPK_EXPANSION_AUTHORITY="com.expansion_authority"
+cordova plugin add https://github.com/erobertson42/cordova-plugin-xapkreader.git#cordova-9 --variable XAPK_PUBLIC_KEY="YOUR_GOOGLE_PLAY_LICENSE_KEY" --variable XAPK_EXPANSION_AUTHORITY="com.expansion_authority"
 ```
 
 ## Plugin Config Variables
