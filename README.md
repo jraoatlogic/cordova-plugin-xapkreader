@@ -35,6 +35,8 @@ This fork contains several changes that fix issues using newer versions of Cordo
 * Auto-install some npm package dependencies required for the `before_plugin_install` hook script
 * The `content:///*` and `cdvfile:///*` access permissions are automatically added to the `config.xml` file
 * The `plugin.xml` config adds a library definition for `org.apache.http.legacy` to the `AndroidManifest.xml` file.  This is now required when targeting API 28+ ([more info](https://developer.android.com/about/versions/pie/android-9.0-changes-28#apache-p)).
+* Limit Google Play Services framework dependency to 16.x.x, as the new 17.0.0 major version has breaking changes (https://developers.google.com/android/guides/releases#june_17_2019)
+* [Fixed bug](https://github.com/agamemnus/cordova-plugin-xapkreader/pull/139) causing app to always stay in fullscreen mode, breaking the adjustResize windowSoftInputMode keyboard setting
 
 
 # Purpose
