@@ -222,7 +222,6 @@ public class XAPKReader extends CordovaPlugin {
    return filePath;
   } catch (Exception ex) {
    Log.e(LOG_TAG, ex.getClass().getSimpleName() + ": " + ex.getMessage());
-   throw ex;
    return null;
   }
  }
