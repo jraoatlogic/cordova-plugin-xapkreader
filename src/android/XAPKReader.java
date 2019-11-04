@@ -7,19 +7,34 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.PluginResult;
 
+import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
-import android.net.Uri;
-import org.json.JSONArray;
 import android.content.pm.PackageManager;
-import android.Manifest;
+import android.content.res.AssetFileDescriptor;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
+import android.net.Uri;
+import android.Manifest;
+import android.util.Log;
+
+import org.json.JSONArray;
 import org.json.JSONException;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.nio.channels.FileChannel;
 
 public class XAPKReader extends CordovaPlugin {
  public static final String ACTION_DOWNLOAD_IF_AVAIlABLE = "downloadExpansionIfAvailable";
+ public static final String ACTION_EXTRACT_FILE = "extractFile";
+ public static final String PATH_MAIN_EXPANSION= "main_expansion/";
+ public static final String PATH_PATCH_EXPANSION = "patch_expansion/";
+ private static final String LOG_TAG = "XAPKReader";
  private CordovaInterface cordova;
  private CordovaWebView webView;
  private Bundle bundle;
@@ -117,12 +132,21 @@ public class XAPKReader extends CordovaPlugin {
     downloadExpansionIfAvailable();
     result = new PluginResult(PluginResult.Status.OK);
     success = true;
-   } else {
-    result = new PluginResult(PluginResult.Status.ERROR, "no such action: " + action);
-   }
-   callContext.sendPluginResult(result);
-   return success;
-  } catch (Exception ex) {
+   } else if (XAPKReader.ACTION_EXTRACT_FILE.equals(action)) {
+	String assetPath = args.getString(0);
+	String filePath = extractFile(assetPath);
+	if (filePath == null) {
+	 result = new PluginResult(PluginResult.Status.ERROR, "Extract file with path " + assetPath + " failed!");
+	} else {
+	 result = new PluginResult(PluginResult.Status.OK, filePath);
+	}
+    success = true;
+    } else {
+     result = new PluginResult(PluginResult.Status.ERROR, "no such action: " + action);
+    }
+    callContext.sendPluginResult(result);
+    return success;
+   } catch (Exception ex) {
    String message = ex.getMessage();
    PluginResult result = new PluginResult(PluginResult.Status.ERROR, action + ": exception thown, " + message);
    result.setKeepCallback(false);
@@ -148,5 +172,58 @@ public class XAPKReader extends CordovaPlugin {
     cordova.getActivity().startActivity(intent);
    }
   });
+ }
+ 
+ private String extractFile (String assetPath) {
+  try {
+   Context ctx = cordova.getActivity().getApplicationContext();
+   String filePath = ctx.getFilesDir() + "/" + assetPath;
+   File file = new File(filePath);
+   if (file.exists()) {
+	return filePath;
+   }
+
+   ContentResolver cr = ctx.getContentResolver();
+   String expansionAuthority = bundle.getString("xapk_expansion_authority", "");
+   ContentProviderClient contentProviderClient = cr.acquireContentProviderClient(expansionAuthority);
+   XAPKProvider xAPKProvider = (XAPKProvider) contentProviderClient.getLocalContentProvider();
+   xAPKProvider.call("set_expansion_file_version_data", null, bundle);
+   xAPKProvider.call("download_completed", null, null);
+
+   File folder = file.getParentFile();
+   if (!folder.exists()) {
+	   folder.mkdirs();
+   }
+
+   AssetFileDescriptor afd = null;
+   Uri uri = Uri.parse(assetPath);
+   try {
+	   afd = xAPKProvider.openAssetFile(uri, "r");
+   } catch (FileNotFoundException e) {
+	   try {
+		   uri = Uri.parse(PATH_MAIN_EXPANSION + assetPath);
+		   afd = xAPKProvider.openAssetFile(uri, "r");
+	   } catch (FileNotFoundException emain) {
+		   uri = Uri.parse(PATH_PATCH_EXPANSION + assetPath);
+		   afd = xAPKProvider.openAssetFile(uri, "r");
+	   }
+   }
+
+   FileInputStream fileInputStream = new FileInputStream(afd.getFileDescriptor());
+   FileOutputStream fileOutputStream = new FileOutputStream(file);
+   FileChannel inputChannel = fileInputStream.getChannel();
+   FileChannel outputChannel = fileOutputStream.getChannel();
+   inputChannel.transferTo(afd.getStartOffset(), afd.getLength(), outputChannel);
+   fileInputStream.close();
+   fileOutputStream.close();
+   outputChannel.close();
+   inputChannel.close();
+
+   return filePath;
+  } catch (Exception ex) {
+   Log.e(LOG_TAG, ex.getClass().getSimpleName() + ": " + ex.getMessage());
+   throw ex;
+   return null;
+  }
  }
 }
